@@ -11,8 +11,24 @@
 # але використовувати метод динамічного програмування, щоб знайти мінімальну кількість монет, необхідних для формування цієї суми. 
 # Функція повинна повертати словник із номіналами монет та їх кількістю для досягнення заданої суми найефективнішим способом. 
 # Наприклад, для суми 113 це буде словник {1: 1, 2: 1, 10: 1, 50: 2}
+import time
+from functools import wraps
 
+def timer_decorator(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        return {
+            'result': result,
+            'execution_time': execution_time,
+            'function_name': func.__name__
+        }
+    return wrapper
 
+@timer_decorator
 def find_coins_greedy(s, denominations):
     used = {}
     remain = s
@@ -30,7 +46,7 @@ def find_coins_greedy(s, denominations):
     else:
         return float('inf'), {}
         
-
+@timer_decorator
 def find_min_coins(amount, denominations):
     dp = [float('inf')] * (amount + 1)    
     dp[0] = 0  
@@ -51,18 +67,22 @@ def main():
     denominations = [50, 25, 10, 5, 2, 1]
     amount = 113
     
-    count, combination = find_min_coins(amount, denominations)
-    
+    output = find_min_coins(amount, denominations)
+    count, combination = output['result'] 
+        
     print('Динамичне програмування.')
+    print(f"Час виконання: {output['execution_time']:.4f} секунд")
     if count == float('inf'):
         print(f"Неможливо видати суму {amount} з даними номіналами")
     else:
         print(f"Мінімальна кількість монет для суми {amount}: {count}")
         print(f"Комбінація монет: {combination}")
 
-    gcount, gcombination = find_coins_greedy(amount, denominations)
+    output = find_coins_greedy(amount, denominations)
+    gcount, gcombination = output['result'] 
 
     print('Жадібний алгоритм.')
+    print(f"Час виконання: {output['execution_time']:.4f} секунд")
     if gcount == float('inf'):
         print(f"Неможливо видати суму {amount} з даними номіналами")
     else:
